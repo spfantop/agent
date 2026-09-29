@@ -30,8 +30,10 @@ jobs:
       - run: cargo install --locked cross
       - run: |
           if [ "${{ matrix.target }}" = "mipsel-unknown-linux-musl" ]; then
-            cross +nightly build --release --locked --target "${{ matrix.target }}" \
+            RUSTFLAGS="-C target-feature=+crt-static -C link-arg=-static" \
+              cross +nightly build --release --locked --target "${{ matrix.target }}" \
               -Z build-std=core,std,alloc,proc_macro
+            file "target/${{ matrix.target }}/release/monitor-agent" | grep -Eq 'statically linked|static-pie linked'
           else
             cross +nightly build --release --locked --target "${{ matrix.target }}"
           fi
