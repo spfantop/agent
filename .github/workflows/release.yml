@@ -22,11 +22,13 @@ jobs:
         run: |
           V=v$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml)
           [ "$GITHUB_REF_NAME" = "$V" ] || { echo "::error::tag $GITHUB_REF_NAME, Cargo.toml $V"; exit 1; }
-      # cross supplies targets whose rust-std component is not published by
-      # rustup, including mipsel-unknown-linux-musl.
-      - uses: dtolnay/rust-toolchain@stable
+      # MIPS has no prebuilt rust-std component on the stable channel. The
+      # cross image supplies its C toolchain while nightly builds Rust's stdlib.
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rust-src
       - run: cargo install --locked cross
-      - run: cross build --release --locked --target ${{ matrix.target }}
+      - run: cross +nightly build --release --locked --target ${{ matrix.target }}
       # install.sh downloads exactly this name; changing it breaks every
       # install command the hub issues.
       - run: cp "target/${{ matrix.target }}/release/monitor-agent" "monitor-agent-${{ matrix.target }}"
