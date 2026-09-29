@@ -28,7 +28,13 @@ jobs:
         with:
           components: rust-src
       - run: cargo install --locked cross
-      - run: cross +nightly build --release --locked --target ${{ matrix.target }}
+      - run: |
+          if [ "${{ matrix.target }}" = "mipsel-unknown-linux-musl" ]; then
+            cross +nightly build --release --locked --target "${{ matrix.target }}" \
+              -Z build-std=core,std,alloc,proc_macro
+          else
+            cross +nightly build --release --locked --target "${{ matrix.target }}"
+          fi
       # install.sh downloads exactly this name; changing it breaks every
       # install command the hub issues.
       - run: cp "target/${{ matrix.target }}/release/monitor-agent" "monitor-agent-${{ matrix.target }}"
