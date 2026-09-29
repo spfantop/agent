@@ -35,7 +35,7 @@ jobs:
               -v "$PWD:/home/rust/src" \
               -w /home/rust/src \
               ghcr.io/rust-cross/rust-musl-cross:mipsel-musl \
-              env RUSTFLAGS="-C panic=abort" \
+              env RUSTFLAGS="-C panic=abort -C target-feature=+crt-static,+soft-float -C link-arg=-static -C link-arg=-msoft-float" \
               cargo +nightly build --release --locked --target "${{ matrix.target }}" \
               -Z build-std=core,std,alloc,proc_macro,panic_abort
             file "target/${{ matrix.target }}/release/monitor-agent" | grep -Eq 'statically linked|static-pie linked'
