@@ -23,16 +23,19 @@ jobs:
           V=v$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml)
           [ "$GITHUB_REF_NAME" = "$V" ] || { echo "::error::tag $GITHUB_REF_NAME, Cargo.toml $V"; exit 1; }
       # MIPS has no prebuilt rust-std component on the stable channel. The
-      # cross image supplies its C toolchain while nightly builds Rust's stdlib.
+      # dedicated rust-musl-cross image includes the MIPS musl startup objects
+      # that the generic cross image is missing.
       - uses: dtolnay/rust-toolchain@nightly
         with:
           components: rust-src
       - run: cargo install --locked cross
       - run: |
           if [ "${{ matrix.target }}" = "mipsel-unknown-linux-musl" ]; then
-            RUSTFLAGS="-C target-feature=+crt-static -C link-arg=-static" \
-              cross +nightly build --release --locked --target "${{ matrix.target }}" \
-              -Z build-std=core,std,alloc,proc_macro
+            docker run --rm \
+              -v "$PWD:/home/rust/src" \
+              -w /home/rust/src \
+              ghcr.io/rust-cross/rust-musl-cross:mipsel-musl \
+              cargo build --release --locked --target "${{ matrix.target }}"
             file "target/${{ matrix.target }}/release/monitor-agent" | grep -Eq 'statically linked|static-pie linked'
           else
             cross +nightly build --release --locked --target "${{ matrix.target }}"
