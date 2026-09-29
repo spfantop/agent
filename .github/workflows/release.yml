@@ -22,9 +22,9 @@ jobs:
         run: |
           V=v$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml)
           [ "$GITHUB_REF_NAME" = "$V" ] || { echo "::error::tag $GITHUB_REF_NAME, Cargo.toml $V"; exit 1; }
+      # cross supplies targets whose rust-std component is not published by
+      # rustup, including mipsel-unknown-linux-musl.
       - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.target }}
       - run: cargo install --locked cross
       - run: cross build --release --locked --target ${{ matrix.target }}
       # install.sh downloads exactly this name; changing it breaks every
