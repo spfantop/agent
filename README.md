@@ -82,6 +82,7 @@ cargo clippy --all-targets
 ```
 
 发布产物为 musl 静态链接二进制，推送 `v*` tag 由 `.github/workflows/release.yml` 构建。
+当前发布包含 x86_64、aarch64 和 OpenWrt `mipsel_24kc`（`mipsel`）架构。
 
 ## 许可
 

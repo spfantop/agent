@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target: [x86_64-unknown-linux-musl, aarch64-unknown-linux-musl]
+        target: [x86_64-unknown-linux-musl, aarch64-unknown-linux-musl, mipsel-unknown-linux-musl]
     steps:
       - uses: actions/checkout@v7
       # A v* tag can be neither moved nor deleted, so one that disagrees with the
